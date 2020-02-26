@@ -4,9 +4,8 @@ def move(data)
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_snakes(data, directions)
   move = safe_directions.sample
-  health = data[:you][:health]
 
-  avoid_others(data, directions)
+  health = data[:you][:health]
 
   if (health >= 90)
     move = chase_tail(data, safe_directions).sample
@@ -31,15 +30,19 @@ def avoid_snakes(data, directions)
   snakes.each do |snake|
     if body.include?(up) || snake[:body].include?(up)
       directions.delete(:up)
+      directions.push(:down)
     end
     if body.include?(down) || snake[:body].include?(down)
       directions.delete(:down)
+      directions.push(:up)
     end
     if body.include?(left) || snake[:body].include?(left)
       directions.delete(:left)
+      directions.push(:right)
     end
     if body.include?(right) || snake[:body].include?(right)
       directions.delete(:right)
+      directions.push(:left)
     end
   end
 
@@ -100,10 +103,4 @@ def chase_tail(data, directions)
   end
 
   directions
-end
-
-def avoid_others(data, directions)
-  body = data[:you][:body]
-  head = body.first
-  puts data[:snake]
 end

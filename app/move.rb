@@ -96,10 +96,13 @@ def avoid_obstacles(data, directions)
         directions.delete(:right)
       end
     end
-  end
-  # directions
-  if (letty[:health] <= 60)
-    seek_food(data, directions)
+  
+    if (letty[:health] <= 60)
+      seek_food(data, directions)
+    end
+  
+    directions
+
   end
 
   directions
@@ -117,22 +120,36 @@ def seek_food(data, directions)
   left = { x: head_x - 1, y: head_y }
   right = { x: head_x + 1, y: head_y }
 
-  if directions.length > 1
-    if board[:food].include?(up)
-      directions = [:up]
-    end
-    if board[:food].include?(down)
-      directions = [:down]
-    end
-    if board[:food].include?(left)
-      directions = [:left]
-    end
-    if board[:food].include?(right)
-      directions = [:right]
-    end
+  if board[:food].include?(up)
+    directions = [:up]
+  end
+  if board[:food].include?(down)
+    directions = [:down]
+  end
+  if board[:food].include?(left)
+    directions = [:left]
+  end
+  if board[:food].include?(right)
+    directions = [:right]
   end
   
-  puts "DIRECTIONS: #{directions}"
+  # if directions.length > 1
+  #   board[:food].map do |head_x|
+  #     .count { |n| n <= head_x }
+  #   end
+  #   puts "DIRECTIONS: #{directions}"
+  # end
+  food_x = []
+  food_y = []
+  board[:food].each do |food|
+    food_x.push(food[:x])
+    food_y.push(food[:y])
+  end
+
+  puts "board food: \n X: #{food_x}, \n Y: #{food_y}"
+  # food_x = board[:food][:x].each { |n| food_x.push(n)}
+  # puts "food_x: #{food_x}"
+  # puts "DIRECTIONS: #{directions}"
   directions
 end
 

@@ -55,17 +55,21 @@ def avoid_obstacles(data, directions)
   head_x = letty[:head_x]
   head_y = letty[:head_y]
 
+  up_left = { x: head_x - 1, y: head_y - 1 }
   up = { x: head_x, y: head_y - 1 }
-  down = { x: head_x, y: head_y + 1 }
+  up_right = { x: head_x + 1, y: head_y - 1 }
   left = { x: head_x - 1, y: head_y }
   right = { x: head_x + 1, y: head_y }
+  down_left = { x: head_x - 1, y: head_y + 1 }
+  down = { x: head_x, y: head_y + 1 }
+  down_right = { x: head_x + 1, y: head_y + 1 }
 
   up_2 = { x: head_x, y: head_y - 2 }
   down_2 = { x: head_x, y: head_y + 2 }
   left_2 = { x: head_x - 2, y: head_y }
   right_2 = { x: head_x + 2, y: head_y }
 
-  # This checks for letty's body, other snakes, and walls in each direction
+  # This checks for letty's body, other snakes, and walls in each adjacent direction
   # If obstacle is found, that direction is removed
   board[:snakes].each do |snake|
     if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1
@@ -82,19 +86,42 @@ def avoid_obstacles(data, directions)
     end
   end
 
+  # Check to see if there is more than one possible direction
   if directions.length > 1
+    # Check for obstacles in 2 out
     board[:snakes].each do |snake|
       if letty[:body].include?(up_2) || snake[:body].include?(up_2) || up_2[:y] == -1
         directions.delete(:up)
-      end
-      if letty[:body].include?(down_2) || snake[:body].include?(down_2) || down_2[:y] == board[:height]
-        directions.delete(:down)
       end
       if letty[:body].include?(left_2) || snake[:body].include?(left_2) || left_2[:x] == -1
         directions.delete(:left)
       end
       if letty[:body].include?(right_2) || snake[:body].include?(right_2) || right_2[:x] == board[:width]
         directions.delete(:right)
+      end
+      if letty[:body].include?(down_2) || snake[:body].include?(down_2) || down_2[:y] == board[:height]
+        directions.delete(:down)
+      end
+    end
+
+    if directions.length > 3
+      board[:snakes].each do |snake|
+        if letty[:body].include?(up_left) || snake[:body].include?(up) || left[:x] == -1 || up[:y] == -1 
+          directions.delete(:up)
+          directions.delete(:left)
+        end
+        if letty[:body].include?(up_right) || snake[:body].include?(up) || left[:x] == +1 || up[:y] == -1 
+          directions.delete(:up)
+          directions.delete(:right)
+        end
+        if letty[:body].include?(down_left) || snake[:body].include?(up) || left[:x] == -1 || up[:y] == +1 
+          directions.delete(:down)
+          directions.delete(:left)
+        end
+        if letty[:body].include?(down_right) || snake[:body].include?(up) || left[:x] == +1 || up[:y] == +1 
+          directions.delete(:down)
+          directions.delete(:right)
+        end
       end
     end
 

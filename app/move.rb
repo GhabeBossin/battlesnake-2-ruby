@@ -18,7 +18,7 @@ def readable_letty_data(data)
     tail_x: letty_tail[:x],
     tail_y: letty_tail[:y],
     phantom_tail_x: letty_tail[:x] - 1,
-    phantom_tail_x: letty_tail[:y] - 1
+    phantom_tail_y: letty_tail[:y] - 1
   }
   return letty_data
 end
@@ -39,20 +39,18 @@ end
 
 def move(data)
   letty = readable_letty_data(data)
-  # puts letty[:tail]
-  # puts letty[:body].length
-  # puts letty[:phantom_tail]
-  # puts letty[:phantom_tail_x]
-  # puts letty[:phantom_tail_y]
+  puts "letty tail: #{letty[:tail]}"
+  puts "letty tail_x: #{letty[:tail_x]}"
+  puts "letty phantom_tail_x: #{letty[:phantom_tail_x]}"
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)
   move = safe_directions.sample
 
 
   if (letty[:health] >= 90)
-      move = chase_tail(data, safe_directions).last
-      puts "I'm chasing my tail"
-      { move: move }
+    move = chase_tail(data, safe_directions).last
+    puts "I'm chasing my tail"
+    { move: move }
   elsif (letty[:health] < 90 && letty[:health] > 60)
     move = eat_adjacent_food(data, safe_directions).last
     puts "I'm eating adjacent food"
@@ -224,29 +222,30 @@ end
 def chase_tail(data, directions)
   letty = readable_letty_data(data)
 
-  if letty[:head_x] < letty[:tail_x] and directions.include?(:left)
+  if letty[:head_x] < letty[:phantom_tail_x] and directions.include?(:left)
     directions.delete(:left)
     directions.push(:right)
     directions = avoid_obstacles(data, directions)
   end
 
-  if letty[:head_x] > letty[:tail_x] and directions.include?(:right)
+  if letty[:head_x] > letty[:phantom_tail_x] and directions.include?(:right)
     directions.delete(:right)
     directions.push(:left)
     directions = avoid_obstacles(data, directions)
   end
 
-  if letty[:head_y] < letty[:tail_y] and directions.include?(:up)
+  if letty[:head_y] < letty[:phantom_tail_y] and directions.include?(:up)
     directions.delete(:up)
     directions.push(:down)
     directions = avoid_obstacles(data, directions)
   end
 
-  if letty[:head_y] > letty[:tail_y] and directions.include?(:down)
+  if letty[:head_y] > letty[:phantom_tail_y] and directions.include?(:down)
     directions.delete(:down)
     directions.push(:up)
     directions = avoid_obstacles(data, directions)
   end
+
   directions
 end
 

@@ -6,16 +6,19 @@
 def readable_letty_data(data)
   letty = data[:you]
   letty_body = letty[:body]
+  letty_tail = letty[:body].last
   letty_data = {
-    # snek: letty,
+    snek: letty,
     health: letty[:health],
     body: letty_body,
     head: letty_body.first,
     head_x: letty_body.first[:x],
     head_y: letty_body.first[:y],
-    tail: letty_body.last,
-    tail_x: letty_body.last[:x],
-    tail_y: letty_body.last[:y]
+    tail: letty_tail,
+    tail_x: letty_tail[:x],
+    tail_y: letty_tail[:y],
+    phantom_tail_x: letty_tail[:x] - 1,
+    phantom_tail_x: letty_tail[:y] - 1
   }
   return letty_data
 end

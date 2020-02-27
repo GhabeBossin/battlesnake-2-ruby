@@ -101,7 +101,7 @@ def avoid_obstacles(data, directions)
         directions.delete(:right)
       end
     end
-    
+
     # directions
     if (letty[:health] <= 70 and letty[:health] > 40)
       seek_food(data, directions)
@@ -137,16 +137,16 @@ def eat_closest_food(data, directions)
     return directions
   end
 
-  if directions.include?(:left) and head_x < closest_food_result[:x]
+  if directions.include?(:left) and letty[:head_x] < closest_food_result[:x]
     directions.delete(:left)
   end
-  if directions.include?(:right) and head_x > closest_food_result[:x]
+  if directions.include?(:right) and letty[:head_x] > closest_food_result[:x]
     directions.delete(:left)
   end
-  if directions.include?(:up) and head_y < closest_food_result[:y]
+  if directions.include?(:up) and letty[:head_y] < closest_food_result[:y]
     directions.delete(:up)
   end
-  if directions.include?(:down) and head_y > closest_food_result[:y]
+  if directions.include?(:down) and letty[:head_y] > closest_food_result[:y]
     directions.delete(:down)
   end
   return directions

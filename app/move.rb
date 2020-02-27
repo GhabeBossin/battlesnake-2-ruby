@@ -96,11 +96,13 @@ def avoid_obstacles(data, directions)
         directions.delete(:right)
       end
     end
+    # directions
+    if (letty[:health] <= 50)
+      seek_food(data, directions)
+    end
+
   end
-  # directions
-  if (letty[:health] <= 50)
-    seek_food(data, directions)
-  end
+
 
   directions
 
@@ -117,24 +119,19 @@ def seek_food(data, directions)
   left = { x: head_x - 1, y: head_y }
   right = { x: head_x + 1, y: head_y }
 
-  if directions.length > 1
-    board[:snakes].each do |snake|
-      if board[:food].include?(up)
-        directions = [:up]
-      end
-      if board[:food].include?(down)
-        directions = [:down]
-      end
-      if board[:food].include?(left)
-        directions = [:left]
-      end
-      if board[:food].include?(right)
-        directions = [:right]
-      end
-    end
+  if board[:food].include?(up)
+    directions = [:up]
+  end
+  if board[:food].include?(down)
+    directions = [:down]
+  end
+  if board[:food].include?(left)
+    directions = [:left]
+  end
+  if board[:food].include?(right)
+    directions = [:right]
   end
   
-  puts "DIRECTIONS: #{directions}"
   directions
 end
 

@@ -35,7 +35,6 @@ def readable_board_data(data)
 end
 
 def move(data)
-  puts data
   letty = readable_letty_data(data)
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)

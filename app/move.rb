@@ -6,16 +6,19 @@
 def readable_letty_data(data)
   letty = data[:you]
   letty_body = letty[:body]
+  letty_tail = letty[:body].last
   letty_data = {
-    # snek: letty,
+    snek: letty,
     health: letty[:health],
     body: letty_body,
     head: letty_body.first,
     head_x: letty_body.first[:x],
     head_y: letty_body.first[:y],
-    tail: letty_body.last,
-    tail_x: letty_body.last[:x],
-    tail_y: letty_body.last[:y]
+    tail: letty_tail,
+    tail_x: letty_tail[:x],
+    tail_y: letty_tail[:y],
+    phantom_tail_x: letty_tail[:x] - 1,
+    phantom_tail_x: letty_tail[:y] - 1
   }
   return letty_data
 end
@@ -36,15 +39,42 @@ end
 
 def move(data)
   letty = readable_letty_data(data)
+  # puts letty[:tail]
+  # puts letty[:body].length
+  # puts letty[:phantom_tail]
+  # puts letty[:phantom_tail_x]
+  # puts letty[:phantom_tail_y]
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)
   move = safe_directions.sample
 
-  if (letty[:health] >= 70)
-    move = chase_tail(data, safe_directions).sample
+
+  # if (letty[:health] >= 90)
+  #     move = chase_tail(data, safe_directions).last
+  #     puts "I'm chasing my tail"
+  #     { move: move }
+  # elsif (letty[:health] < 90 && letty[:health] > 60)
+  #   move = eat_adjacent_food(data, safe_directions).last
+  #   puts "I'm eating adjacent food"
+  #   { move: move }
+  # elsif (letty[:health] <= 60)
+  #   seek_closest_food(data, safe_directions).last
+  #   puts "I'm seeking out closest food"
+  #   { move: move }
+  # else
+  #   {move: move}
+  # end
+
+  if (letty[:health] < 90 && letty[:health] > 60)
+    move = eat_adjacent_food(data, safe_directions).last
+    puts "I'm eating adjacent food"
+    { move: move }
+  elsif (letty[:health] <= 60)
+    seek_closest_food(data, safe_directions).last
+    puts "I'm seeking out closest food"
     { move: move }
   else
-    { move: move }
+    {move: move}
   end
 end
 
@@ -65,6 +95,14 @@ def avoid_obstacles(data, directions)
   left_2 = { x: head_x - 2, y: head_y }
   right_2 = { x: head_x + 2, y: head_y }
 
+    # directions
+    # if (letty[:health] <= 100 && letty[:health] > 60)
+    #   eat_adjacent_food(data, directions)
+    # end
+    # if (letty[:health] <= 60)
+    #   seek_closest_food(data, directions)
+    # end
+
   # This checks for letty's body, other snakes, and walls in each direction
   # If obstacle is found, that direction is removed
   board[:snakes].each do |snake|
@@ -82,9 +120,9 @@ def avoid_obstacles(data, directions)
     end
   end
 
-  if directions.length > 1
-    head_on_collision(data, directions)
-  end
+  # if directions.length > 1
+  #   head_on_collision(data, directions)
+  # end
 
   if directions.length > 1
     board[:snakes].each do |snake|
@@ -102,13 +140,13 @@ def avoid_obstacles(data, directions)
       end
     end
 
-    # directions
-    if (letty[:health] <= 70 and letty[:health] > 40)
-      eat_adjacent_food(data, directions)
-    end
-    if (letty[:health] <= 40)
-      seek_closest_food(data, directions)
-    end
+    # # directions
+    # if (letty[:health] <= 100 && letty[:health] > 60)
+    #   eat_adjacent_food(data, directions)
+    # end
+    # if (letty[:health] <= 60)
+    #   seek_closest_food(data, directions)
+    # end
   end
 
   directions

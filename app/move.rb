@@ -6,6 +6,7 @@
 def readable_letty_data(data)
   letty = data[:you]
   letty_body = letty[:body]
+  letty_tail = letty[:body].last
   letty_data = {
     snek: letty,
     health: letty[:health],
@@ -13,9 +14,11 @@ def readable_letty_data(data)
     head: letty_body.first,
     head_x: letty_body.first[:x],
     head_y: letty_body.first[:y],
-    tail: letty_body.last,
-    tail_x: letty_body.last[:x],
-    tail_y: letty_body.last[:y]
+    tail: letty_tail,
+    tail_x: letty_tail[:x],
+    tail_y: letty_tail[:y],
+    phantom_tail_x: letty_tail[:x] - 1,
+    phantom_tail_x: letty_tail[:y] - 1
   }
   return letty_data
 end
@@ -36,15 +39,30 @@ end
 
 def move(data)
   letty = readable_letty_data(data)
+  # puts letty[:tail]
+  # puts letty[:body].length
+  # puts letty[:phantom_tail]
+  # puts letty[:phantom_tail_x]
+  # puts letty[:phantom_tail_y]
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)
   move = safe_directions.sample
 
-  if (letty[:health] >= 85)
-    move = chase_tail(data, safe_directions).sample
+
+  if (letty[:health] >= 90)
+      move = chase_tail(data, safe_directions).last
+      puts "I'm chasing my tail"
+      { move: move }
+  elsif (letty[:health] < 90 && letty[:health] > 60)
+    move = eat_adjacent_food(data, safe_directions).last
+    puts "I'm eating adjacent food"
+    { move: move }
+  elsif (letty[:health] <= 60)
+    seek_closest_food(data, safe_directions).last
+    puts "I'm seeking out closest food"
     { move: move }
   else
-    { move: move }
+    {move: move}
   end
 end
 
@@ -65,7 +83,8 @@ def avoid_obstacles(data, directions)
   left_2 = { x: head_x - 2, y: head_y }
   right_2 = { x: head_x + 2, y: head_y }
 
-  # This checks for letty, other snakes, and walls in each direction - if found, that direction is removed
+  # This checks for letty's body, other snakes, and walls in each direction
+  # If obstacle is found, that direction is removed
   board[:snakes].each do |snake|
     if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1
       directions.delete(:up)
@@ -79,6 +98,10 @@ def avoid_obstacles(data, directions)
     if letty[:body].include?(right) || snake[:body].include?(right) || right[:x] == board[:width]
       directions.delete(:right)
     end
+  end
+
+  if directions.length > 1
+    head_on_collision(data, directions)
   end
 
   if directions.length > 1
@@ -96,25 +119,87 @@ def avoid_obstacles(data, directions)
         directions.delete(:right)
       end
     end
-  
-    if (letty[:health] <= 60)
-      seek_food(data, directions)
-    end
-  
-    directions
-
   end
 
   directions
-
 end
 
-def seek_food(data, directions)
+def seek_closest_food(data, directions)
+  letty = readable_letty_data(data)
+  board = readable_board_data(data)
+
+  closest_food_result = determine_closest_food(data, board[:food], directions)
+
+  if (letty[:head_y] == closest_food_result[:y] and directions.include?(:right) and letty[:head_x] < closest_food_result[:x])
+    directions = [:right]
+    return directions
+  end
+  if (letty[:head_y] == closest_food_result[:y] and directions.include?(:left) and letty[:head_x] > closest_food_result[:x])
+    directions = [:left]
+    return directions
+  end
+  if (letty[:head_x] == closest_food_result[:x] and directions.include?(:down) and letty[:head_y] < closest_food_result[:y])
+    directions = [:down]
+    return directions
+  end
+  if (letty[:head_x] == closest_food_result[:x] and directions.include?(:up) and letty[:head_y] > closest_food_result[:y])
+    directions = [:up]
+    return directions
+  end
+
+  if directions.include?(:left) and letty[:head_x] < closest_food_result[:x]
+    directions.delete(:left)
+  end
+  if directions.include?(:right) and letty[:head_x] > closest_food_result[:x]
+    directions.delete(:right)
+  end
+  if directions.include?(:up) and letty[:head_y] < closest_food_result[:y]
+    directions.delete(:up)
+  end
+  if directions.include?(:down) and letty[:head_y] > closest_food_result[:y]
+    directions.delete(:down)
+  end
+  return directions
+end
+
+def determine_closest_food(data, food_list, directions)
+  letty = readable_letty_data(data)
+  board = readable_board_data(data)
+
+  closest_food = nil
+  shortest_distance = 10000
+
+  i = 0
+  for item in food_list
+    food_x = food_list[i][:x]
+    food_y = food_list[i][:y]
+    distance_x = letty[:head_x] - food_x
+    distance_y = letty[:head_y] - food_y
+
+    total_distance = Math.sqrt((distance_x ** 2) + (distance_y ** 2))
+
+    if closest_food == nil
+      shortest_distance = total_distance
+      closest_food = item
+    end
+
+    if total_distance < shortest_distance
+      shortest_distance = total_distance
+      closest_food = item
+    end
+    i = i + 1
+  end
+
+  return closest_food
+end
+
+def eat_adjacent_food(data, directions)
   letty = readable_letty_data(data)
   board = readable_board_data(data)
 
   head_x = letty[:head_x]
   head_y = letty[:head_y]
+
   up = { x: head_x, y: head_y - 1 }
   down = { x: head_x, y: head_y + 1 }
   left = { x: head_x - 1, y: head_y }
@@ -135,66 +220,7 @@ def seek_food(data, directions)
   if board[:food].include?(right)
     directions = [:right]
   end
-  
-  # CHECKS FOR DIRECTION OF "MOST FOOD" ON THE BOARD
-  food_x = []
-  food_y = []
-  x_left = []
-  x_right = []
-  y_above = []
-  y_below = []
 
-  board[:food].each do |food|
-    food_x.push(food[:x])
-    food_y.push(food[:y])
-  end
-
-  puts "board food: \n X: #{food_x}, \n Y: #{food_y}"
-  # CHECKING X AXIS COMPARED TO HEAD
-  food_x.each do |x_val|
-    if x_val < head_x
-      x_left.push(x_val)
-    end
-    if x_val > head_x
-      x_right.push(x_val)
-    end
-
-    puts "board food: \n x_left: #{x_left} \n x_right: #{x_right}"
-  end
-
-  # CHECKING Y AXIS COMPARED TO HEAD
-  food_y.each do |y_val|
-    if y_val < head_y
-      y_above.push(y_val)
-    end
-    if y_val > head_y
-      y_below.push(y_val)
-    end
-
-    puts "board food: \n y_above: #{y_above} \n y_below: #{y_below}"
-
-  end
-  
-  puts "CHECKING VARIABLES: \n y_above: #{y_above} \n y_below: #{y_below}"
-
-  # MOVE COMMANDS BASED ON BOARD FOOD ^
-  if directions.include?(:up) #&& (y_above >= y_below)
-    puts "up = true"
-    directions = [:up]
-  end
-  # if directions.include?(:down) && (y_below >= y_above)
-  #   puts "down = true"
-  #   directions = [:down]
-  # end
-  # if directions.include?(:left) && (x_left >= x_right)
-  #   puts "left = true"
-  #   directions = [:left]
-  # end
-  # if directions.include?(:right) && (x_right >= x_left)
-  #   puts "right = true"
-  #   directions = [:right]
-  # end
-  
   directions
 end
 
@@ -223,6 +249,54 @@ def chase_tail(data, directions)
     directions.delete(:down)
     directions.push(:up)
     directions = avoid_obstacles(data, directions)
+  end
+  directions
+end
+
+def head_on_collision(data, directions)
+  letty = readable_letty_data(data)
+  board = readable_board_data(data)
+  letty_size = letty[:body].length
+
+  head_x = letty[:head_x]
+  head_y = letty[:head_y]
+
+  our_possible_moves = [
+    { x: head_x, y: head_y - 1 },
+    { x: head_x, y: head_y + 1 },
+    { x: head_x - 1, y: head_y },
+    { x: head_x + 1, y: head_y }
+  ]
+
+  for i in 1..board[:snakes].length - 1
+    snake = board[:snakes][i]
+    if snake[:body][0] != letty[:head]
+      if snake[:body].length >= letty_size
+        their_possible_moves = check_snake_head(snake[:body][0])
+        directions = remove_bad_directions(their_possible_moves, our_possible_moves, directions)
+      end
+    end
+  end
+  directions
+end
+
+def check_snake_head(head)
+  possible_moves = [
+    { x: head[:x], y: head[:y] - 1 },
+    { x: head[:x], y: head[:y] + 1 },
+    { x: head[:x] - 1, y: head[:y] },
+    { x: head[:x] + 1, y: head[:y] }
+  ]
+  possible_moves
+end
+
+def remove_bad_directions(their_possible_moves, our_possible_moves, directions)
+  direction_keys = {0 => :up, 1 => :down, 2 => :left, 3 => :right}
+  for i in 0..3 do
+    our_move = our_possible_moves[i]
+    if their_possible_moves.include?(our_move)
+      directions.delete(direction_keys[i])
+    end
   end
   directions
 end

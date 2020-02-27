@@ -40,7 +40,7 @@ def move(data)
   safe_directions = avoid_obstacles(data, directions)
   move = safe_directions.sample
 
-  if (letty[:health] >= 70)
+  if (letty[:health] >= 85)
     move = chase_tail(data, safe_directions).sample
     { move: move }
   else
@@ -98,7 +98,7 @@ def avoid_obstacles(data, directions)
     end
   end
   # directions
-  if (letty[:health] <= 50)
+  if (letty[:health] <= 60)
     seek_food(data, directions)
   end
 
@@ -118,19 +118,17 @@ def seek_food(data, directions)
   right = { x: head_x + 1, y: head_y }
 
   if directions.length > 1
-    board[:snakes].each do |snake|
-      if board[:food].include?(up)
-        directions = [:up]
-      end
-      if board[:food].include?(down)
-        directions = [:down]
-      end
-      if board[:food].include?(left)
-        directions = [:left]
-      end
-      if board[:food].include?(right)
-        directions = [:right]
-      end
+    if board[:food].include?(up)
+      directions = [:up]
+    end
+    if board[:food].include?(down)
+      directions = [:down]
+    end
+    if board[:food].include?(left)
+      directions = [:left]
+    end
+    if board[:food].include?(right)
+      directions = [:right]
     end
   end
   

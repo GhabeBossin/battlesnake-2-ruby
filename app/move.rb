@@ -35,6 +35,7 @@ def readable_board_data(data)
 end
 
 def move(data)
+  puts data
   letty = readable_letty_data(data)
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)
@@ -125,15 +126,15 @@ def eat_closest_food(data, directions)
     return directions
   end
   if (letty[:head_y] == closest_food_result[:y] and directions.include?(:left) and letty[:head_x] > closest_food_result[:x])
-    directions = [:right]
+    directions = [:left]
     return directions
   end
   if (letty[:head_x] == closest_food_result[:x] and directions.include?(:down) and letty[:head_y] < closest_food_result[:y])
-    directions = [:right]
+    directions = [:down]
     return directions
   end
   if (letty[:head_x] == closest_food_result[:x] and directions.include?(:up) and letty[:head_y] > closest_food_result[:y])
-    directions = [:right]
+    directions = [:up]
     return directions
   end
 
@@ -141,7 +142,7 @@ def eat_closest_food(data, directions)
     directions.delete(:left)
   end
   if directions.include?(:right) and letty[:head_x] > closest_food_result[:x]
-    directions.delete(:left)
+    directions.delete(:right)
   end
   if directions.include?(:up) and letty[:head_y] < closest_food_result[:y]
     directions.delete(:up)

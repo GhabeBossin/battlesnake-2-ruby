@@ -49,23 +49,11 @@ def move(data)
   move = safe_directions.sample
 
 
-  # if (letty[:health] >= 90)
-  #     move = chase_tail(data, safe_directions).last
-  #     puts "I'm chasing my tail"
-  #     { move: move }
-  # elsif (letty[:health] < 90 && letty[:health] > 60)
-  #   move = eat_adjacent_food(data, safe_directions).last
-  #   puts "I'm eating adjacent food"
-  #   { move: move }
-  # elsif (letty[:health] <= 60)
-  #   seek_closest_food(data, safe_directions).last
-  #   puts "I'm seeking out closest food"
-  #   { move: move }
-  # else
-  #   {move: move}
-  # end
-
-  if (letty[:health] < 90 && letty[:health] > 60)
+  if (letty[:health] >= 90)
+      move = chase_tail(data, safe_directions).last
+      puts "I'm chasing my tail"
+      { move: move }
+  elsif (letty[:health] < 90 && letty[:health] > 60)
     move = eat_adjacent_food(data, safe_directions).last
     puts "I'm eating adjacent food"
     { move: move }
@@ -95,14 +83,6 @@ def avoid_obstacles(data, directions)
   left_2 = { x: head_x - 2, y: head_y }
   right_2 = { x: head_x + 2, y: head_y }
 
-    # directions
-    # if (letty[:health] <= 100 && letty[:health] > 60)
-    #   eat_adjacent_food(data, directions)
-    # end
-    # if (letty[:health] <= 60)
-    #   seek_closest_food(data, directions)
-    # end
-
   # This checks for letty's body, other snakes, and walls in each direction
   # If obstacle is found, that direction is removed
   board[:snakes].each do |snake|
@@ -120,9 +100,9 @@ def avoid_obstacles(data, directions)
     end
   end
 
-  # if directions.length > 1
-  #   head_on_collision(data, directions)
-  # end
+  if directions.length > 1
+    head_on_collision(data, directions)
+  end
 
   if directions.length > 1
     board[:snakes].each do |snake|
@@ -139,14 +119,6 @@ def avoid_obstacles(data, directions)
         directions.delete(:right)
       end
     end
-
-    # # directions
-    # if (letty[:health] <= 100 && letty[:health] > 60)
-    #   eat_adjacent_food(data, directions)
-    # end
-    # if (letty[:health] <= 60)
-    #   seek_closest_food(data, directions)
-    # end
   end
 
   directions

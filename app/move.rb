@@ -120,6 +120,8 @@ def seek_food(data, directions)
   left = { x: head_x - 1, y: head_y }
   right = { x: head_x + 1, y: head_y }
 
+
+
   # CHECKS FOR FOOD ADJACENT TO HEAD
   if board[:food].include?(up)
     directions = [:up]
@@ -137,15 +139,18 @@ def seek_food(data, directions)
   # CHECKS FOR DIRECTION OF "MOST FOOD" ON THE BOARD
   food_x = []
   food_y = []
+  x_left = []
+  x_right = []
+  y_above = []
+  y_below = []
+
   board[:food].each do |food|
     food_x.push(food[:x])
     food_y.push(food[:y])
   end
 
   puts "board food: \n X: #{food_x}, \n Y: #{food_y}"
-  
-  x_left = []
-  x_right = []
+  # CHECKING X AXIS COMPARED TO HEAD
   food_x.each do |x_val|
     if x_val < head_x
       x_left.push(x_val)
@@ -156,9 +161,8 @@ def seek_food(data, directions)
 
     puts "board food: \n x_left: #{x_left} \n x_right: #{x_right}"
   end
-  
-  y_above = []
-  y_below = []
+
+  # CHECKING Y AXIS COMPARED TO HEAD
   food_y.each do |y_val|
     if y_val < head_y
       y_above.push(y_val)
@@ -168,8 +172,29 @@ def seek_food(data, directions)
     end
 
     puts "board food: \n y_above: #{y_above} \n y_below: #{y_below}"
-  end
 
+  end
+  
+  puts "CHECKING VARIABLES: \n y_above: #{y_above} \n y_below: #{y_below}"
+
+  # MOVE COMMANDS BASED ON BOARD FOOD ^
+  if directions.include?(:up) #&& (y_above >= y_below)
+    puts "up = true"
+    directions = [:up]
+  end
+  # if directions.include?(:down) && (y_below >= y_above)
+  #   puts "down = true"
+  #   directions = [:down]
+  # end
+  # if directions.include?(:left) && (x_left >= x_right)
+  #   puts "left = true"
+  #   directions = [:left]
+  # end
+  # if directions.include?(:right) && (x_right >= x_left)
+  #   puts "right = true"
+  #   directions = [:right]
+  # end
+  
   directions
 end
 

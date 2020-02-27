@@ -83,10 +83,6 @@ def avoid_obstacles(data, directions)
   end
 
   if directions.length > 1
-    head_on_collision(data, directions)
-  end
-
-  if directions.length > 1
     board[:snakes].each do |snake|
       if letty[:body].include?(up_2) || snake[:body].include?(up_2) || up_2[:y] == -1
         directions.delete(:up)
@@ -102,12 +98,10 @@ def avoid_obstacles(data, directions)
       end
     end
 
-    # directions
-    if (letty[:health] <= 70 and letty[:health] > 40)
-      seek_food(data, directions)
-    end
-    if (letty[:health] <= 40)
-      eat_closest_food(data,directions)
+    if letty[:health] >= 20
+      head_on_collision(data, directions)
+    else
+      eat_adjacent_food(data, directions)
     end
   end
 
@@ -149,6 +143,7 @@ def eat_closest_food(data, directions)
   if directions.include?(:down) and letty[:head_y] > closest_food_result[:y]
     directions.delete(:down)
   end
+
   return directions
 end
 
@@ -183,7 +178,7 @@ def find_closest_food(data, food_list, directions)
   return closest_food
 end
 
-def seek_food(data, directions)
+def eat_adjacent_food(data, directions)
   letty = readable_letty_data(data)
   board = readable_board_data(data)
 
@@ -206,6 +201,10 @@ def seek_food(data, directions)
   end
   if board[:food].include?(right)
     directions = [:right]
+  end
+  
+  if (letty[:health] <= 40)
+    eat_closest_food(data,directions)
   end
 
   directions
@@ -264,6 +263,7 @@ def head_on_collision(data, directions)
       end
     end
   end
+  eat_adjacent_food(data, directions)
   directions
 end
 

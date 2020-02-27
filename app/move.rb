@@ -104,21 +104,21 @@ def avoid_obstacles(data, directions)
 
     # directions
     if (letty[:health] <= 70 and letty[:health] > 40)
-      seek_food(data, directions)
+      eat_adjacent_food(data, directions)
     end
     if (letty[:health] <= 40)
-      eat_closest_food(data,directions)
+      seek_closest_food(data, directions)
     end
   end
 
   directions
 end
 
-def eat_closest_food(data, directions)
+def seek_closest_food(data, directions)
   letty = readable_letty_data(data)
   board = readable_board_data(data)
 
-  closest_food_result = find_closest_food(data, board[:food], directions)
+  closest_food_result = determine_closest_food(data, board[:food], directions)
 
   if (letty[:head_y] == closest_food_result[:y] and directions.include?(:right) and letty[:head_x] < closest_food_result[:x])
     directions = [:right]
@@ -152,7 +152,7 @@ def eat_closest_food(data, directions)
   return directions
 end
 
-def find_closest_food(data, food_list, directions)
+def determine_closest_food(data, food_list, directions)
   letty = readable_letty_data(data)
   board = readable_board_data(data)
 
@@ -183,7 +183,7 @@ def find_closest_food(data, food_list, directions)
   return closest_food
 end
 
-def seek_food(data, directions)
+def eat_adjacent_food(data, directions)
   letty = readable_letty_data(data)
   board = readable_board_data(data)
 
@@ -255,7 +255,7 @@ def head_on_collision(data, directions)
     { x: head_x + 1, y: head_y }
   ]
 
-  for i in 1..board[:snakes].length-1
+  for i in 1..board[:snakes].length - 1
     snake = board[:snakes][i]
     if snake[:body][0] != letty[:head]
       if snake[:body].length >= letty_size

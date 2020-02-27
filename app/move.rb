@@ -55,17 +55,38 @@ def avoid_obstacles(data, directions)
   head_x = letty[:head_x]
   head_y = letty[:head_y]
 
-  up = { x: head_x, y: head_y - 1 }
-  down = { x: head_x, y: head_y + 1 }
-  left = { x: head_x - 1, y: head_y }
-  right = { x: head_x + 1, y: head_y }
+  # up = { x: head_x, y: head_y - 1 }
+  # down = { x: head_x, y: head_y + 1 }
+  # left = { x: head_x - 1, y: head_y }
+  # right = { x: head_x + 1, y: head_y }
+
+  up = {
+    x: head_x,
+    y: head_y - 1,
+    y2: head_y - 2
+  }
+  down = {
+    x: head_x,
+    y: head_y + 1,
+    y2: head_y + 2
+  }
+  left = {
+    x2: head_x - 2,
+    x: head_x - 1,
+    y: head_y,
+  }
+  right = {
+    x2: head_x + 2,
+    x: head_x + 1,
+    y: head_y }
 
   up_2 = { x: head_x, y: head_y - 2 }
   down_2 = { x: head_x, y: head_y + 2 }
   left_2 = { x: head_x - 2, y: head_y }
   right_2 = { x: head_x + 2, y: head_y }
 
-  # This checks for letty, other snakes, and walls in each direction - if found, that direction is removed
+  # This checks for letty's body, other snakes, and walls in each direction
+  # If any obstacle is found, that direction is removed
   board[:snakes].each do |snake|
     if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1
       directions.delete(:up)
@@ -83,7 +104,7 @@ def avoid_obstacles(data, directions)
 
   if directions.length > 1
     board[:snakes].each do |snake|
-      if letty[:body].include?(up_2) || snake[:body].include?(up_2) || up_2[:y] == -1
+      if letty[:body].include?(up) || snake[:body].include?(up) || up_2[:y] == -1
         directions.delete(:up)
       end
       if letty[:body].include?(down_2) || snake[:body].include?(down_2) || down_2[:y] == board[:height]
@@ -112,6 +133,7 @@ def seek_food(data, directions)
 
   head_x = letty[:head_x]
   head_y = letty[:head_y]
+
   up = { x: head_x, y: head_y - 1 }
   down = { x: head_x, y: head_y + 1 }
   left = { x: head_x - 1, y: head_y }
@@ -133,7 +155,7 @@ def seek_food(data, directions)
       end
     end
   end
-  
+
   puts "DIRECTIONS: #{directions}"
   directions
 end

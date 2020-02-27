@@ -120,6 +120,7 @@ def seek_food(data, directions)
   left = { x: head_x - 1, y: head_y }
   right = { x: head_x + 1, y: head_y }
 
+  # CHECKS FOR FOOD ADJACENT TO HEAD
   if board[:food].include?(up)
     directions = [:up]
   end
@@ -133,12 +134,7 @@ def seek_food(data, directions)
     directions = [:right]
   end
   
-  # if directions.length > 1
-  #   board[:food].map do |head_x|
-  #     .count { |n| n <= head_x }
-  #   end
-  #   puts "DIRECTIONS: #{directions}"
-  # end
+  # CHECKS FOR DIRECTION OF "MOST FOOD" ON THE BOARD
   food_x = []
   food_y = []
   board[:food].each do |food|
@@ -147,9 +143,33 @@ def seek_food(data, directions)
   end
 
   puts "board food: \n X: #{food_x}, \n Y: #{food_y}"
-  # food_x = board[:food][:x].each { |n| food_x.push(n)}
-  # puts "food_x: #{food_x}"
-  # puts "DIRECTIONS: #{directions}"
+  
+  x_left = []
+  x_right = []
+  food_x.each do |x_val|
+    if x_val < head_x
+      x_left.push(x_val)
+    end
+    if x_val > head_x
+      x_right.push(x_val)
+    end
+
+    puts "board food: \n x_left: #{x_left} \n x_right: #{x_right}"
+  end
+  
+  y_above = []
+  y_below = []
+  food_y.each do |y_val|
+    if y_val < head_y
+      y_above.push(y_val)
+    end
+    if y_val > head_y
+      y_below.push(y_val)
+    end
+
+    puts "board food: \n y_above: #{y_above} \n y_below: #{y_below}"
+  end
+
   directions
 end
 

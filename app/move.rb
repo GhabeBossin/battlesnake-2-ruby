@@ -50,21 +50,23 @@ def move(data)
 
 
   if (letty[:health] >= 90)
-      move = chase_tail(data, safe_directions).last
-      puts "I'm chasing my tail"
-      { move: move }
+    move = chase_tail(data, safe_directions).last
+    puts "I'm chasing my tail \n #{safe_directions}"
+    { move: move }
   elsif (letty[:health] < 90 && letty[:health] > 60)
     move = eat_adjacent_food(data, safe_directions).last
-    puts "I'm eating adjacent food"
+    puts "I'm eating adjacent food \n #{safe_directions}"
     { move: move }
   elsif (letty[:health] <= 60)
     seek_closest_food(data, safe_directions).last
-    puts "I'm seeking out closest food"
+    puts "I'm seeking out closest food \n #{safe_directions}"
     { move: move }
   else
     {move: move}
   end
 end
+
+
 
 def avoid_obstacles(data, directions)
   letty = readable_letty_data(data)
@@ -83,46 +85,77 @@ def avoid_obstacles(data, directions)
   left_2 = { x: head_x - 2, y: head_y }
   right_2 = { x: head_x + 2, y: head_y }
 
-  # This checks for letty's body, other snakes, and walls in each direction
-  # If obstacle is found, that direction is removed
-  board[:snakes].each do |snake|
-    if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1
-      directions.delete(:up)
-    end
-    if letty[:body].include?(down) || snake[:body].include?(down) || down[:y] == board[:height]
-      directions.delete(:down)
-    end
-    if letty[:body].include?(left) || snake[:body].include?(left) || left[:x] == -1
-      directions.delete(:left)
-    end
-    if letty[:body].include?(right) || snake[:body].include?(right) || right[:x] == board[:width]
-      directions.delete(:right)
-    end
-  end
+  # # UPPER LEFT
+  # if (head_x <= 1 && head_y <= 1)
+  #   directions = [:down, :right]
+  
+  # # LOWER LEFT
+  # elsif (head_x <= 1 && head_y <= (board[:height] - 1))
+  #   directions = [:up, :right] 
 
-  if directions.length > 1
-    head_on_collision(data, directions)
-  end
+  # # LOWER RIGHT
+  # elsif (head_x <= (board[:width] - 1) && head_y <= (board[:height] - 1))
+  #   directions = [:up, :left]
 
-  if directions.length > 1
+  # # UPPER RIGHT
+  # elsif (head_x <= (board[:width] - 1) && head_y <= 1)
+  #   directions = [:down, :left]
+  
+  # puts "AFTER CORNER DIRECTIONS: #{directions}"
+  # else
+    # directions = corner_check(data, directions)
+    # directions = head_on_collision(data, directions)
+
+    # This checks for letty's body, other snakes, and walls in each direction
+    # If obstacle is found, that direction is removed
     board[:snakes].each do |snake|
-      if letty[:body].include?(up_2) || snake[:body].include?(up_2) || up_2[:y] == -1
+      if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1
         directions.delete(:up)
       end
-      if letty[:body].include?(down_2) || snake[:body].include?(down_2) || down_2[:y] == board[:height]
+      if letty[:body].include?(down) || snake[:body].include?(down) || down[:y] == board[:height]
         directions.delete(:down)
       end
-      if letty[:body].include?(left_2) || snake[:body].include?(left_2) || left_2[:x] == -1
+      if letty[:body].include?(left) || snake[:body].include?(left) || left[:x] == -1
         directions.delete(:left)
       end
-      if letty[:body].include?(right_2) || snake[:body].include?(right_2) || right_2[:x] == board[:width]
+      if letty[:body].include?(right) || snake[:body].include?(right) || right[:x] == board[:width]
         directions.delete(:right)
       end
     end
-  end
 
+    if directions.length > 1
+      board[:snakes].each do |snake|
+        if letty[:body].include?(up_2) || snake[:body].include?(up_2) || up_2[:y] == -1
+          directions.delete(:up)
+        end
+        if letty[:body].include?(down_2) || snake[:body].include?(down_2) || down_2[:y] == board[:height]
+          directions.delete(:down)
+        end
+        if letty[:body].include?(left_2) || snake[:body].include?(left_2) || left_2[:x] == -1
+          directions.delete(:left)
+        end
+        if letty[:body].include?(right_2) || snake[:body].include?(right_2) || right_2[:x] == board[:width]
+          directions.delete(:right)
+        end
+      end
+    end
+  # end
   directions
 end
+
+# def corner_check(data, directions)
+#   letty = readable_letty_data(data)
+#   board = readable_board_data(data)
+
+#   head_x = letty[:head_x]
+#   head_y = letty[:head_y]
+  
+#   if head_x <= 1 && head_y <= 1
+#     directions.delete(:left)
+#     directions.delete(:up)
+#   end
+#   puts "#{directions}"
+# end
 
 def seek_closest_food(data, directions)
   letty = readable_letty_data(data)
@@ -224,25 +257,25 @@ end
 def chase_tail(data, directions)
   letty = readable_letty_data(data)
 
-  if letty[:head_x] < letty[:tail_x] and directions.include?(:left)
+  if letty[:head_x] < letty[:tail_x] && directions.include?(:left)
     directions.delete(:left)
     directions.push(:right)
     directions = avoid_obstacles(data, directions)
   end
 
-  if letty[:head_x] > letty[:tail_x] and directions.include?(:right)
+  if letty[:head_x] > letty[:tail_x] && directions.include?(:right)
     directions.delete(:right)
     directions.push(:left)
     directions = avoid_obstacles(data, directions)
   end
 
-  if letty[:head_y] < letty[:tail_y] and directions.include?(:up)
+  if letty[:head_y] < letty[:tail_y] && directions.include?(:up)
     directions.delete(:up)
     directions.push(:down)
     directions = avoid_obstacles(data, directions)
   end
 
-  if letty[:head_y] > letty[:tail_y] and directions.include?(:down)
+  if letty[:head_y] > letty[:tail_y] && directions.include?(:down)
     directions.delete(:down)
     directions.push(:up)
     directions = avoid_obstacles(data, directions)

@@ -34,8 +34,6 @@ def readable_board_data(data)
     food: board[:food],
     snakes: board[:snakes]
   }
-  # other_snakes = board_data[:snakes].delete(board_data[:snakes][0])
-  # puts "BOARD SNAKES: #{board_data[:snakes]} \n\n YOU: #{board_data[:snakes][0]} \n\n OTHER SNAKES: #{other_snakes}"
   return board_data
 end
 
@@ -85,7 +83,7 @@ def avoid_obstacles(data, directions)
   # This checks for letty's body, other snakes, and walls in each direction
   # If obstacle is found, that direction is removed
   board[:snakes].each do |snake|
-    if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1 
+    if letty[:body].include?(up) || snake[:body].include?(up) || up[:y] == -1
       directions.delete(:up)
     end
     if letty[:body].include?(down) || snake[:body].include?(down) || down[:y] == board[:height]
@@ -196,7 +194,7 @@ def eat_adjacent_food(data, directions)
     directions = [:right]
   end
 
-  return directions
+  directions
 end
 
 def chase_tail(data, directions)

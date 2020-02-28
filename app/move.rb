@@ -45,7 +45,7 @@ def move(data)
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)
   
-  if safe_directions.length > 2
+  if safe_directions.length > 1
     safe_directions = head_on_collision(data, safe_directions)
   end
   # puts "SAFE DIRECTIONS FOR #{letty[:snek][:name]}: #{safe_directions}"

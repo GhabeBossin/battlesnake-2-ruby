@@ -44,20 +44,24 @@ def move(data)
   # puts "letty phantom_tail_x: #{letty[:phantom_tail_x]}"
   directions = [:up, :down, :left, :right]
   safe_directions = avoid_obstacles(data, directions)
+  
+  if safe_directions.length > 1
+    safe_directions = head_on_collision(data, safe_directions)
+  end
+  # puts "SAFE DIRECTIONS FOR #{letty[:snek][:name]}: #{safe_directions}"
   move = safe_directions.sample
 
-
-  if (letty[:health] >= 90)
+  if (letty[:health] >= 90) && (safe_directions.length > 2)
     move = chase_tail(data, safe_directions).last
-    puts "I'm chasing my tail"
+    # puts "I'm chasing my tail"
     { move: move }
   elsif (letty[:health] < 90 && letty[:health] > 60)
     move = eat_adjacent_food(data, safe_directions).last
-    puts "I'm eating adjacent food"
+    # puts "I'm eating adjacent food"
     { move: move }
   elsif (letty[:health] <= 60)
     move = seek_closest_food(data, safe_directions).last
-    puts "I'm seeking out closest food"
+    # puts "I'm seeking out closest food"
     { move: move }
   else
     {move: move}
@@ -91,10 +95,6 @@ def avoid_obstacles(data, directions)
     if letty[:body].include?(right) || snake[:body].include?(right) || right[:x] == board[:width]
       directions.delete(:right)
     end
-  end
-
-  if directions.length > 2
-    head_on_collision(data, directions)
   end
 
   directions
@@ -181,16 +181,16 @@ def eat_adjacent_food(data, directions)
   left = { x: head_x - 1, y: head_y }
   right = { x: head_x + 1, y: head_y }
 
-  if board[:food].include?(up)
+  if board[:food].include?(up) && directions.include?(:up)
     directions = [:up]
   end
-  if board[:food].include?(down)
+  if board[:food].include?(down) && directions.include?(:down)
     directions = [:down]
   end
-  if board[:food].include?(left)
+  if board[:food].include?(left) && directions.include?(:left)
     directions = [:left]
   end
-  if board[:food].include?(right)
+  if board[:food].include?(right) && directions.include?(:right)
     directions = [:right]
   end
 
@@ -241,14 +241,16 @@ def head_on_collision(data, directions)
     { x: head_x - 1, y: head_y },
     { x: head_x + 1, y: head_y }
   ]
-
-  for i in 1..board[:snakes].length - 1
-    snake = board[:snakes][i]
+  other_snakes = board[:snakes].without(letty[:snek])
+  # puts "YOU: #{letty[:snek]} \n\n OTHER SNAKES: #{other_snakes}"
+  for i in 0..other_snakes.length - 1
+    snake = other_snakes[i]
     if snake[:body][0] != letty[:head]
-      if snake[:body].length >= letty_size
-        their_possible_moves = check_snake_head(snake[:body][0])
-        directions = remove_bad_directions(their_possible_moves, our_possible_moves, directions)
-      end
+      # if snake[:body].length >= letty_size
+      their_possible_moves = check_snake_head(snake[:body][0])
+      directions = remove_bad_directions(their_possible_moves, our_possible_moves, directions)
+      # puts "Their moves: #{their_possible_moves} \n Our Moves: #{our_possible_moves} \n directions: #{directions}"
+      # end
     end
   end
   directions
@@ -268,7 +270,7 @@ def remove_bad_directions(their_possible_moves, our_possible_moves, directions)
   direction_keys = {0 => :up, 1 => :down, 2 => :left, 3 => :right}
   for i in 0..3 do
     our_move = our_possible_moves[i]
-    if their_possible_moves.include?(our_move)
+    if their_possible_moves.include?(our_move) && (directions.length > 1)
       directions.delete(direction_keys[i])
     end
   end

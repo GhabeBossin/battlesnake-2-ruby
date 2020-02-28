@@ -94,7 +94,7 @@ def avoid_obstacles(data, directions)
   end
 
   if directions.length > 2
-    directions = head_on_collision(data, directions)
+    head_on_collision(data, directions)
   end
 
   directions
